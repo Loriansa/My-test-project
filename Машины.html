@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#281b16">
+  <title>твоя машина — 3D-гараж</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #281b16;
+      --panel: #35251e;
+      --text: #f5eade;
+      --muted: #bda592;
+      --accent: #e9ba89;
+      --line: #f5eade22;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    button:focus-visible, a:focus-visible, canvas:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 5px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: auto;
+      padding: 0 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #281b16f5;
+      border-bottom: 1px solid var(--line);
+      transition: transform .3s;
+    }
+
+    header.hidden { transform: translateY(-110%); }
+
+    .header-inner {
+      min-height: 76px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 23px;
+      font-weight: 750;
+      letter-spacing: -1px;
+    }
+
+    .logo span { color: var(--accent); }
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .hero { padding: 58px 0 32px; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0;
+      font-size: clamp(42px, 6.5vw, 76px);
+      line-height: 1.05;
+      font-weight: 500;
+      letter-spacing: -3px;
+    }
+
+    h1 em {
+      color: var(--accent);
+      font-family: Georgia, serif;
+    }
+
+    .intro {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 580px;
+    }
+
+    .viewer {
+      position: relative;
+      height: clamp(350px, 58vw, 570px);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: #35251e;
+    }
+
+    #scene { width: 100%; height: 100%; }
+    canvas { display: block; touch-action: none; }
+
+    .viewer-label {
+      position: absolute;
+      top: 22px;
+      left: 23px;
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 2px;
+    }
+
+    .viewer-label strong {
+      display: block;
+      color: var(--text);
+      font-size: 20px;
+      letter-spacing: -.5px;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .badge {
+      position: absolute;
+      top: 22px;
+      right: 22px;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 30px;
+      color: var(--accent);
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      text-align: center;
+      background: #35251e;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .loading[hidden] { display: none; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 22px;
+      padding: 24px 0;
+    }
+
+    .paint-group, .buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .paint-label { margin-right: 6px; color: var(--muted); font-size: 12px; }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #ffffff35;
+      border-radius: 50%;
+      background: var(--paint);
+    }
+
+    .swatch[aria-pressed="true"] {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .control {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: 11px 17px;
+      border-radius: 30px;
+      font-size: 12px;
+    }
+
+    .control:hover { background: #ffffff09; }
+
+    .control[aria-pressed="true"] {
+      color: var(--bg);
+      background: var(--accent);
+    }
+
+    .help {
+      padding: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 50px;
+      padding: 55px 0;
+    }
+
+    h2 { margin: 12px 0; font-size: 32px; font-weight: 500; letter-spacing: -1px; }
+
+    .about p { color: var(--muted); line-height: 1.85; margin-top: 0; }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .wrap { padding: 0 17px; }
+      .header-inner .muted { display: none; }
+      .hero { padding-top: 38px; }
+      h1 { letter-spacing: -2px; }
+      .viewer-label { top: 18px; left: 18px; }
+      .badge { top: 18px; right: 15px; }
+      .about { grid-template-columns: 1fr; gap: 15px; padding: 38px 0; }
+      footer { flex-direction: column; gap: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      header { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header id="header">
+    <div class="wrap header-inner">
+      <a class="logo" href="#">твоя машина<span> ↗</span></a>
+      <span class="muted">Твоя мечта. Теперь в трёх измерениях.</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Первый экспонат / интерактивный гараж</div>
+      <h1>Выбери свою<br>машину <em>мечты.</em></h1>
+      <p class="intro">
+        Начнём с простого: спортивное купе, тёплый свет и полный обзор.
+        Поверни машину, рассмотри детали и найди свой цвет.
+      </p>
+    </section>
+
+    <section aria-label="Трёхмерный просмотр автомобиля">
+      <div class="viewer">
+        <div id="scene"></div>
+
+        <div class="viewer-label">
+          DREAM GARAGE / 001
+          <strong>Terra GT</strong>
+        </div>
+
+        <div class="badge">3D · CONCEPT</div>
+
+        <div class="loading" id="loading" role="status">
+          Подготавливаем твой гараж…
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="paint-group" aria-label="Цвет кузова">
+          <span class="paint-label">Цвет кузова</span>
+          <button class="swatch" style="--paint:#b66b43"
+            data-color="#b66b43" aria-label="Медный" aria-pressed="true"></button>
+          <button class="swatch" style="--paint:#c6b99e"
+            data-color="#c6b99e" aria-label="Песочный" aria-pressed="false"></button>
+          <button class="swatch" style="--paint:#65735a"
+            data-color="#65735a" aria-label="Оливковый" aria-pressed="false"></button>
+          <button class="swatch" style="--paint:#873f36"
+            data-color="#873f36" aria-label="Бордовый" aria-pressed="false"></button>
+          <button class="swatch" style="--paint:#42474b"
+            data-color="#42474b" aria-label="Графитовый" aria-pressed="false"></button>
+        </div>
+
+        <div class="buttons">
+          <button class="control" id="rotate" aria-pressed="false">Автовращение</button>
+          <button class="control" id="reset">Сбросить ракурс ↗</button>
+        </div>
+      </div>
+
+      <div class="help">
+        <strong>Мышь:</strong> зажми левую кнопку для вращения, крути колёсико для приближения.
+        <br>
+        <strong>Телефон:</strong> вращай одним пальцем, меняй масштаб двумя.
+        Для управления стрелками сначала нажми на изображение.
+      </div>
+    </section>
+
+    <section class="about">
+      <div>
+        <div class="eyebrow">Придумана для этого гаража</div>
+        <h2>Terra GT</h2>
+        <span class="muted">Концепт · спортивное купе · 3D-прототип</span>
+      </div>
+      <p>
+        Terra GT — вымышленный автомобиль, а не модель реальной марки.
+        Длинный капот, низкая крыша, широкая колея и круглые колёса:
+        простая форма, с которой начинается наш 3D-каталог.
+        Здесь уже можно осмотреть кузов со всех сторон, приблизить детали
+        и изменить окраску. Следующим шагом вместо этого прототипа можно
+        подключить детальную модель настоящего автомобиля.
+      </p>
+    </section>
+
+    <footer>
+      <span>твоя машина ↗</span>
+      <span>Некоторые мечты имеют четыре колеса.</span>
+    </footer>
+  </main>
+
+  <script type="module">
+    const loading = document.getElementById("loading");
+
+    try {
+      const THREE = await import(
+        "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"
+      );
+
+      const host = document.getElementById("scene");
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color("#35251e");
+
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.35;
+      host.appendChild(renderer.domElement);
+
+      const canvas = renderer.domElement;
+      canvas.tabIndex = 0;
+      canvas.setAttribute("role", "img");
+      canvas.setAttribute(
+        "aria-label",
+        "Интерактивная 3D-модель Terra GT. Стрелки вращают, плюс и минус меняют масштаб."
+      );
+
+      scene.add(new THREE.HemisphereLight("#ffe6c5", "#37251c", 2.3));
+
+      const key = new THREE.DirectionalLight("#ffe5c4", 4);
+      key.position.set(3, 7, 5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.camera.left = -6;
+      key.shadow.camera.right = 6;
+      key.shadow.camera.top = 6;
+      key.shadow.camera.bottom = -6;
+      key.shadow.normalBias = 0.03;
+      scene.add(key);
+
+      const fill = new THREE.DirectionalLight("#d2dfff", 1.7);
+      fill.position.set(-4, 3, -5);
+      scene.add(fill);
+
+      const rim = new THREE.DirectionalLight("#ffb66d", 2.2);
+      rim.position.set(-5, 4, 3);
+      scene.add(rim);
+
+      const paint = new THREE.MeshStandardMaterial({
+        color: "#b66b43",
+        metalness: 0.48,
+        roughness: 0.3
+      });
+
+      const glass = new THREE.MeshStandardMaterial({
+        color: "#223239",
+        metalness: 0.55,
+        roughness: 0.18
+      });
+
+      const rubber = new THREE.MeshStandardMaterial({
+        color: "#171514",
+        roughness: 0.92
+      });
+
+      const metal = new THREE.MeshStandardMaterial({
+        color: "#bdbaa9",
+        metalness: 0.8,
+        roughness: 0.27
+      });
+
+      const dark = new THREE.MeshStandardMaterial({
+        color: "#292724",
+        metalness: 0.3,
+        roughness: 0.5
+      });
+
+      const headlights = new THREE.MeshStandardMaterial({
+        color: "#fff1cb",
+        emissive: "#ffdda0",
+        emissiveIntensity: 1.4
+      });
+
+      const taillights = new THREE.MeshStandardMaterial({
+        color: "#a52319",
+        emissive: "#e43220",
+        emissiveIntensity: 0.8
+      });
+
+      const car = new THREE.Group();
+      scene.add(car);
+
+      function box(w, h, d, material, x, y, z, parent = car) {
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+        mesh.position.set(x, y, z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        parent.add(mesh);
+        return mesh;
+      }
+
+      // Кузов направлен передней частью вдоль оси +X.
+      box(4.6, 0.43, 1.85, paint, 0, 0.7, 0);
+      box(4.25, 0.12, 1.92, dark, 0, 0.44, 0);
+      box(1.45, 0.2, 1.78, paint, 1.3, 0.98, 0);
+      box(0.68, 0.2, 1.78, paint, -1.9, 0.98, 0);
+
+      // Наклонные переднее и заднее стекло.
+      const windshield = box(0.7, 0.055, 1.47, glass, 0.62, 1.29, 0);
+      windshield.rotation.z = -0.72;
+
+      const rearWindow = box(0.62, 0.055, 1.47, glass, -1.13, 1.3, 0);
+      rearWindow.rotation.z = 0.82;
+
+      box(1.38, 0.1, 1.5, paint, -0.28, 1.55, 0);
+
+      // Боковые окна — трапециевидные плоскости.
+      const windowShape = new THREE.Shape();
+      windowShape.moveTo(-1.4, 1.06);
+      windowShape.lineTo(-0.91, 1.5);
+      windowShape.lineTo(0.37, 1.5);
+      windowShape.lineTo(0.87, 1.06);
+      windowShape.closePath();
+
+      const sideGlass = glass.clone();
+      sideGlass.side = THREE.DoubleSide;
+
+      [-1, 1].forEach(side => {
+        const window = new THREE.Mesh(
+          new THREE.ShapeGeometry(windowShape),
+          sideGlass
+        );
+        window.position.z = side * 0.755;
+        car.add(window);
+
+        box(0.065, 0.48, 0.045, paint, -0.33, 1.29, side * 0.785);
+        box(1.65, 0.035, 0.035, dark, -0.22, 1.01, side * 0.935);
+        box(0.19, 0.035, 0.045, metal, -0.55, 0.91, side * 0.94);
+
+        const mirror = box(0.26, 0.13, 0.18, paint, 0.65, 1.13, side * 1.02);
+        mirror.rotation.y = side * 0.15;
+        box(0.12, 0.05, 0.17, dark, 0.65, 1.08, side * 0.9);
+
+        // Декоративные пороги.
+        box(2.5, 0.07, 0.08, paint, -0.05, 0.48, side * 0.97);
+      });
+
+      // Передняя решётка, фары и задние фонари.
+      box(0.045, 0.2, 0.91, dark, 2.315, 0.7, 0);
+      for (let z = -0.36; z <= 0.37; z += 0.12) {
+        box(0.055, 0.15, 0.022, metal, 2.345, 0.7, z);
+      }
+
+      [-1, 1].forEach(side => {
+        box(0.055, 0.12, 0.43, headlights, 2.32, 0.86, side * 0.66);
+        box(0.055, 0.13, 0.56, taillights, -2.32, 0.83, side * 0.58);
+
+        // Патрубки выхлопа.
+        const exhaust = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.065, 0.065, 0.19, 16),
+          metal
+        );
+        exhaust.rotation.z = Math.PI / 2;
+        exhaust.position.set(-2.34, 0.48, side * 0.67);
+        car.add(exhaust);
+      });
+
+      // Небольшой задний спойлер.
+      box(0.08, 0.18, 0.07, dark, -1.94, 1.15, -0.59);
+      box(0.08, 0.18, 0.07, dark, -1.94, 1.15, 0.59);
+      box(0.36, 0.065, 1.84, paint, -1.99, 1.26, 0);
+
+      // Четыре колеса с дисками, спицами и шинами.
+      [-1.48, 1.46].forEach(x => {
+        [-1, 1].forEach(side => {
+          const wheel = new THREE.Group();
+          wheel.position.set(x, 0.48, side * 0.94);
+          car.add(wheel);
+
+          const tire = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.46, 0.46, 0.3, 48),
+            rubber
+          );
+          tire.rotation.x = Math.PI / 2;
+          tire.castShadow = true;
+          wheel.add(tire);
+
+          const disk = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.315, 0.315, 0.315, 40),
+            dark
+          );
+          disk.rotation.x = Math.PI / 2;
+          wheel.add(disk);
+
+          const faceZ = side * 0.168;
+
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(0.305, 0.025, 10, 48),
+            metal
+          );
+          ring.position.z = faceZ;
+          wheel.add(ring);
+
+          for (let i = 0; i < 5; i++) {
+            const angle = i * Math.PI * 2 / 5;
+            const spoke = box(
+              0.055, 0.26, 0.035, metal,
+              Math.sin(angle) * 0.15,
+              Math.cos(angle) * 0.15,
+              faceZ,
+              wheel
+            );
+            spoke.rotation.z = -angle;
+          }
+
+          const hub = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.075, 0.075, 0.045, 20),
+            metal
+          );
+          hub.rotation.x = Math.PI / 2;
+          hub.position.z = faceZ;
+          wheel.add(hub);
+        });
+      });
+
+      // Круглый подиум и пол.
+      const podium = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.5, 3.6, 0.14, 96),
+        new THREE.MeshStandardMaterial({
+          color: "#4a3427",
+          roughness: 0.82,
+          metalness: 0.1
+        })
+      );
+      podium.position.y = -0.07;
+      podium.receiveShadow = true;
+      scene.add(podium);
+
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(200, 200),
+        new THREE.MeshStandardMaterial({ color: "#35251e", roughness: 1 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -0.15;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      // Управление камерой без дополнительных библиотек.
+      const target = new THREE.Vector3(0, 0.72, 0);
+      const initial = { theta: 0.85, phi: 1.13, radius: 9.5 };
+      let theta = initial.theta;
+      let phi = initial.phi;
+      let radius = initial.radius;
+      let autoRotate = false;
+
+      function updateCamera() {
+        camera.position.set(
+          target.x + radius * Math.sin(phi) * Math.cos(theta),
+          target.y + radius * Math.cos(phi),
+          target.z + radius * Math.sin(phi) * Math.sin(theta)
+        );
+        camera.lookAt(target);
+      }
+
+      function clampView() {
+        phi = THREE.MathUtils.clamp(phi, 0.25, 1.48);
+        radius = THREE.MathUtils.clamp(radius, 5, 15);
+      }
+
+      const pointers = new Map();
+
+      function pinchDistance() {
+        const points = [...pointers.values()];
+        return Math.hypot(
+          points[0].x - points[1].x,
+          points[0].y - points[1].y
+        );
+      }
+
+      canvas.addEventListener("pointerdown", event => {
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        canvas.focus({ preventScroll: true });
+        canvas.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      });
+
+      canvas.addEventListener("pointermove", event => {
+        const previous = pointers.get(event.pointerId);
+        if (!previous) return;
+
+        const oldDistance = pointers.size === 2 ? pinchDistance() : 0;
+        const dx = event.clientX - previous.x;
+        const dy = event.clientY - previous.y;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (pointers.size === 1) {
+          theta -= dx * 0.008;
+          phi -= dy * 0.006;
+        } else if (pointers.size === 2) {
+          const distance = pinchDistance();
+          if (distance > 0 && oldDistance > 0) {
+            radius *= oldDistance / distance;
+          }
+        }
+        clampView();
+      });
+
+      function releasePointer(event) {
+        pointers.delete(event.pointerId);
+      }
+
+      canvas.addEventListener("pointerup", releasePointer);
+      canvas.addEventListener("pointercancel", releasePointer);
+      canvas.addEventListener("lostpointercapture", releasePointer);
+
+      canvas.addEventListener("wheel", event => {
+        event.preventDefault();
+        radius *= Math.exp(
+          THREE.MathUtils.clamp(event.deltaY, -100, 100) * 0.0015
+        );
+        clampView();
+      }, { passive: false });
+
+      canvas.addEventListener("keydown", event => {
+        const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "+", "=", "-"];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+
+        if (event.key === "ArrowLeft") theta -= 0.1;
+        if (event.key === "ArrowRight") theta += 0.1;
+        if (event.key === "ArrowUp") phi -= 0.07;
+        if (event.key === "ArrowDown") phi += 0.07;
+        if (event.key === "+" || event.key === "=") radius -= 0.5;
+        if (event.key === "-") radius += 0.5;
+        clampView();
+      });
+
+      document.querySelectorAll(".swatch").forEach(button => {
+        button.addEventListener("click", () => {
+          paint.color.set(button.dataset.color);
+          document.querySelectorAll(".swatch").forEach(other => {
+            other.setAttribute("aria-pressed", String(other === button));
+          });
+        });
+      });
+
+      const rotateButton = document.getElementById("rotate");
+      rotateButton.addEventListener("click", () => {
+        autoRotate = !autoRotate;
+        rotateButton.setAttribute("aria-pressed", String(autoRotate));
+      });
+
+      document.getElementById("reset").addEventListener("click", () => {
+        theta = initial.theta;
+        phi = initial.phi;
+        radius = initial.radius;
+        autoRotate = false;
+        rotateButton.setAttribute("aria-pressed", "false");
+      });
+
+      function resize() {
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+
+      new ResizeObserver(resize).observe(host);
+      resize();
+      updateCamera();
+
+      let lastTime = performance.now();
+
+      renderer.setAnimationLoop(time => {
+        const delta = Math.min((time - lastTime) / 1000, 0.05);
+        lastTime = time;
+
+        if (autoRotate && pointers.size === 0) theta += delta * 0.3;
+        updateCamera();
+        renderer.render(scene, camera);
+      });
+
+      loading.hidden = true;
+
+      canvas.addEventListener("webglcontextlost", event => {
+        event.preventDefault();
+        loading.textContent = "3D-просмотр остановлен. Обнови страницу, чтобы запустить его снова.";
+        loading.hidden = false;
+      });
+
+    } catch (error) {
+      console.error(error);
+      loading.textContent =
+        "Не удалось запустить 3D. Проверь интернет и попробуй открыть страницу в свежей версии Chrome, Edge, Firefox или Safari с поддержкой WebGL.";
+    }
+
+    let lastScroll = window.scrollY;
+    window.addEventListener("scroll", () => {
+      const current = window.scrollY;
+      if (Math.abs(current - lastScroll) < 5) return;
+      document.getElementById("header").classList.toggle(
+        "hidden",
+        current > lastScroll && current > 90
+      );
+      lastScroll = current;
+    }, { passive: true });
+  </script>
+</body>
+</html>
