@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101711">
+  <title>Точка выдоха — минута для себя</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101711;
+      --text: #f1f2e9;
+      --muted: #a3b19f;
+      --accent: #d5f59b;
+      --line: #ffffff20;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      background:
+        radial-gradient(ellipse at 85% 30%, #37503755, transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .page { max-width: 1120px; margin: auto; padding: 0 28px; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo { font-weight: 750; letter-spacing: -.6px; font-size: 21px; }
+    .logo span { color: var(--accent); }
+    .label { color: var(--muted); font-size: 13px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      padding: 88px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 15px #d5f59766;
+    }
+
+    h1 {
+      margin: 25px 0;
+      font-size: clamp(48px, 7vw, 86px);
+      line-height: 1.02;
+      font-weight: 550;
+      letter-spacing: -5px;
+    }
+
+    h1 em { font-family: Georgia, serif; color: var(--accent); font-weight: 400; }
+
+    .intro {
+      max-width: 370px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 100px;
+      padding: 16px 23px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform .2s, background .2s;
+    }
+
+    button:hover { transform: translateY(-3px); }
+    button:active { transform: translateY(0); }
+    button:focus-visible { outline: 3px solid white; outline-offset: 5px; }
+
+    .primary { margin-top: 20px; background: var(--accent); color: var(--bg); }
+    .primary:hover { background: #e2ffb4; }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: #ffffff05;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .orb {
+      display: grid;
+      place-items: center;
+      width: 190px;
+      height: 190px;
+      margin: 42px auto 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 25%, #e4ffc4, #8bac6a 48%, #263c2a 85%);
+      box-shadow: 0 0 60px #acdb7230, inset -15px -15px 35px #0004;
+      animation: breathe 7s ease-in-out infinite;
+    }
+
+    .orb span {
+      font-size: 35px;
+      font-variant-numeric: tabular-nums;
+      color: #112113;
+      letter-spacing: -2px;
+    }
+
+    @keyframes breathe {
+      50% { transform: scale(1.07); box-shadow: 0 0 85px #acdb7245; }
+    }
+
+    h2 { margin: 0 0 12px; font-size: 23px; font-weight: 550; }
+
+    #idea {
+      min-height: 72px;
+      margin: 0 auto;
+      max-width: 310px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .secondary {
+      margin-top: 22px;
+      color: var(--text);
+      background: #ffffff0c;
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 740px) {
+      main { grid-template-columns: 1fr; gap: 40px; padding: 48px 0; }
+      h1 { letter-spacing: -3px; }
+      .intro { max-width: 100%; }
+      header .label { display: none; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orb { animation: none; }
+      button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">точка<span>выдоха ↗</span></div>
+      <div class="label">Маленькая пауза. Большая разница.</div>
+    </header>
+
+    <main>
+      <section>
+        <div class="eyebrow"><span class="dot"></span> Ты здесь. Этого достаточно.</div>
+        <h1>Мир подождёт.<br><em>Выдохни.</em></h1>
+        <p class="intro">
+          Между сообщениями, задачами и вечным «надо»
+          найдётся минута, которая принадлежит только тебе.
+        </p>
+        <button class="primary" id="shuffle">Найти свою паузу ↗</button>
+      </section>
+
+      <section class="card" aria-label="Твоя минутная пауза">
+        <div class="card-top">
+          <span>Режим: без спешки</span>
+          <span>01 / 01</span>
+        </div>
+        <div class="orb" aria-hidden="true"><span id="clock">01:00</span></div>
+        <div aria-live="polite">
+          <h2 id="title">Просто побудь здесь</h2>
+          <p id="idea">Опусти плечи, расслабь челюсть и сделай несколько спокойных вдохов. Сейчас ничего не нужно решать.</p>
+        </div>
+        <button class="secondary" id="timer">Начать минуту →</button>
+        <p id="status" role="status" style="margin:16px 0 0;color:var(--muted);font-size:12px">
+          Без уведомлений. Без обязательств.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>Не всё время нужно быть продуктивным.</span>
+      <span>Сделано для настоящего момента ✳</span>
+    </footer>
+  </div>
+
+  <script>
+    const ideas = [
+      ["Посмотри чуть дальше", "Отведи взгляд от экрана. Найди самый далёкий предмет за окном и спокойно рассмотри его."],
+      ["Вернись в тело", "Почувствуй стопы на полу, опору под спиной и ладони. Позволь себе устроиться удобнее."],
+      ["Глоток спокойствия", "Выпей немного воды. Не торопись. Заметь её температуру и ощущение прохлады."],
+      ["Услышь этот момент", "Прислушайся и найди три разных звука вокруг. Не оценивай их — просто замечай."],
+      ["Маленькая благодарность", "Вспомни одну приятную мелочь сегодняшнего дня. Даже если это просто вкусный завтрак."]
+    ];
+
+    const clock = document.querySelector("#clock");
+    const timerButton = document.querySelector("#timer");
+    const status = document.querySelector("#status");
+    let previous = -1;
+    let interval = null;
+
+    document.querySelector("#shuffle").addEventListener("click", () => {
+      let index;
+      do { index = Math.floor(Math.random() * ideas.length); }
+      while (index === previous);
+      previous = index;
+      document.querySelector("#title").textContent = ideas[index][0];
+      document.querySelector("#idea").textContent = ideas[index][1];
+    });
+
+    function resetTimer() {
+      clearInterval(interval);
+      interval = null;
+      clock.textContent = "01:00";
+      timerButton.textContent = "Начать минуту →";
+    }
+
+    timerButton.addEventListener("click", () => {
+      if (interval !== null) {
+        resetTimer();
+        status.textContent = "Можно вернуться, когда захочется.";
+        return;
+      }
+
+      const deadline = Date.now() + 60000;
+      timerButton.textContent = "Остановить паузу";
+      status.textContent = "Эта минута — только твоя.";
+
+      interval = setInterval(() => {
+        const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+        clock.textContent =
+          String(Math.floor(remaining / 60)).padStart(2, "0") + ":" +
+          String(remaining % 60).padStart(2, "0");
+
+        if (remaining === 0) {
+          resetTimer();
+          clock.textContent = "✓";
+          status.textContent = "Пауза завершена. Возвращайся в своём темпе.";
+          timerButton.textContent = "Ещё одна минута →";
+        }
+      }, 200);
+    });
+  </script>
+</body>
+</html>
